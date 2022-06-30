@@ -39,9 +39,12 @@ library SortedLinkedList {
                 return;
             }
 
-            // if account already exists then revert
-            if (currentId == account) {
-                revert();
+            // if account already exists and input value is higher, then remove this node
+            // and it will be added later
+            if (currentId == account && value > current.value) {
+                previous.nextId = (currentId = current.nextId);
+                current = linkedList.get(currentId);
+                continue;
             }
 
             // find a node such that the value currently at the node is greater than input value.
@@ -103,7 +106,7 @@ library SortedLinkedList {
 
     function reduce(
         SortedLinkedList.Info storage linkedList,
-        function(uint256, uint256) returns (uint256) fn,
+        function(address, uint256, uint256) returns (uint256) fn,
         uint256 accumulator
     ) internal returns (uint256) {
         address currentId = linkedList.get(NULL).nextId;
@@ -115,7 +118,7 @@ library SortedLinkedList {
 
             Node storage current = linkedList.get(currentId);
 
-            accumulator = fn(current.value, accumulator);
+            accumulator = fn(currentId, current.value, accumulator);
 
             // continue to next node
             currentId = current.nextId;
